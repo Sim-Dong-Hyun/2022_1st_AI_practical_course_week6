@@ -30,23 +30,30 @@ with mp_selfie_segmentation.SelfieSegmentation(
         bg_image = np.zeros(image.shape, dtype=np.uint8)
         bg_image[:] = BG_COLOR
         output_image = np.where(condition, fg_image, bg_image)
-        cv2.imwrite('/tmp/selfie_segmentation_output' + str(idx) + '.png', output_image)
+
 
 # In[]
-# For webcam input:
-BG_COLOR = (192, 192, 192) # gray
-cap = cv2.VideoCapture(1)
+selfie_orgin = "./selfie_vid/0227_195717.mp4"
+
+vid_file_name = "./selfie_vid/{}_out.mp4".format(now.strftime("%m%d_%H%M%S"))
+vid_file = cv2.VideoWriter(vid_file_name, fourcc, fps, (width, height))
+
+cap = cv2.VideoCapture(selfie_orgin)
+# cap = cv2.VideoCapture(1)
 with mp_selfie_segmentation.SelfieSegmentation(model_selection=1) as selfie_segmentation:
-    bg_image = None
+    bg_image = cv2.imread('./selfie_bg/milky_way.png')
+    bg_image = cv2.resize(bg_image, dsize = (640, 480))
+    bg_image = cv2.GaussianBlur(bg_image, (15, 15), 0)
+
+    # bg_image = np.zeros(image.shape, dtype=np.uint8)
+    # bg_image[:] = (192, 192, 192)
+
     while cap.isOpened():
         success, image = cap.read()
         if not success:
             print("Ignoring empty camera frame.")
-            # If loading a video, use 'break' instead of 'continue'.
-            continue
+            break
 
-        # Flip the image horizontally for a later selfie-view display, and convert
-        # the BGR image to RGB.
         image = cv2.cvtColor(cv2.flip(image, 1), cv2.COLOR_BGR2RGB)
         # To improve performance, optionally mark the image as not writeable to
         # pass by reference.
@@ -59,21 +66,17 @@ with mp_selfie_segmentation.SelfieSegmentation(model_selection=1) as selfie_segm
         # Draw selfie segmentation on the background image.
         # To improve segmentation around boundaries, consider applying a joint
         # bilateral filter to "results.segmentation_mask" with "image".
-        condition = np.stack(
-          (results.segmentation_mask,) * 3, axis=-1) > 0.1
-        # The background can be customized.
-        #   a) Load an image (with the same width and height of the input image) to
-        #      be the background, e.g., bg_image = cv2.imread('/path/to/image/file')
-        #   b) Blur the input image by applying image filtering, e.g.,
-        #      bg_image = cv2.GaussianBlur(image,(55,55),0)
-        if bg_image is None:
-            bg_image = np.zeros(image.shape, dtype=np.uint8)
-            bg_image[:] = BG_COLOR
+        condition = np.stack((results.segmentation_mask,) * 3, axis=-1) > 0.1
+
         output_image = np.where(condition, image, bg_image)
 
         cv2.imshow('MediaPipe Selfie Segmentation', output_image)
+
+        vid_file.write(frame)
+
         if cv2.waitKey(10) & 0xFF == ord('q'):
             break
 
 cv2.destroyAllWindows()
 cap.release()
+vid_file.release()
