@@ -7,6 +7,7 @@ import mediapipe as mp
 import numpy as np
 import cv2
 import math
+import datetime
 
 #Hand keypoint 그리기 위한
 mp_drawing = mp.solutions.drawing_utils
@@ -14,8 +15,12 @@ mp_hands = mp.solutions.hands
 
 #웹캠 열기
 cap = cv2.VideoCapture(1)
-# cap = cv2.VideoCapture("./hand_pose/0228_030505.mp4")
+cap = cv2.VideoCapture("./hand_pose/0228_031433.mp4")
 
+fourcc = cv2.VideoWriter_fourcc(*'DIVX')
+width = int(cap.get(3)) ; height = int(cap.get(4))
+fps = 30.0
+now = datetime.datetime.now()
 vid_file_name = "./hand_pose/{}_out.mp4".format(now.strftime("%m%d_%H%M%S"))
 vid_file = cv2.VideoWriter(vid_file_name, fourcc, fps, (width, height))
 

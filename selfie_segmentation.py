@@ -2,6 +2,7 @@ import cv2
 import mediapipe as mp
 import numpy as np
 import os
+import datetime
 
 mp_drawing = mp.solutions.drawing_utils
 mp_selfie_segmentation = mp.solutions.selfie_segmentation
@@ -33,13 +34,18 @@ with mp_selfie_segmentation.SelfieSegmentation(
 
 
 # In[]
-selfie_orgin = "./selfie_vid/0227_195717.mp4"
-
+fourcc = cv2.VideoWriter_fourcc(*'DIVX')
+width = int(cap.get(3)) ; height = int(cap.get(4))
+fps = 30.0
+now = datetime.datetime.now()
 vid_file_name = "./selfie_vid/{}_out.mp4".format(now.strftime("%m%d_%H%M%S"))
 vid_file = cv2.VideoWriter(vid_file_name, fourcc, fps, (width, height))
 
-cap = cv2.VideoCapture(selfie_orgin)
 # cap = cv2.VideoCapture(1)
+
+selfie_orgin = "./selfie_vid/0227_195717.mp4"
+cap = cv2.VideoCapture(selfie_orgin)
+
 with mp_selfie_segmentation.SelfieSegmentation(model_selection=1) as selfie_segmentation:
     bg_image = cv2.imread('./selfie_bg/milky_way.png')
     bg_image = cv2.resize(bg_image, dsize = (640, 480))
@@ -72,7 +78,7 @@ with mp_selfie_segmentation.SelfieSegmentation(model_selection=1) as selfie_segm
 
         cv2.imshow('MediaPipe Selfie Segmentation', output_image)
 
-        vid_file.write(frame)
+        vid_file.write(output_image)
 
         if cv2.waitKey(10) & 0xFF == ord('q'):
             break
