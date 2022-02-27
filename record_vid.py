@@ -1,4 +1,3 @@
-# ! conda install -c conda-forge opencv
 import cv2
 import time
 import datetime
