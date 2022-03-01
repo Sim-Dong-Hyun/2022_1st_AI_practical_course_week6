@@ -1,8 +1,9 @@
 import cv2
 import mediapipe as mp
 import numpy as np
-import os
+import glob
 import datetime
+import matplotlib.pyplot as plt
 
 mp_drawing = mp.solutions.drawing_utils
 mp_selfie_segmentation = mp.solutions.selfie_segmentation
@@ -10,13 +11,13 @@ mp_selfie_segmentation = mp.solutions.selfie_segmentation
 
 # In[]
 # For static images:
-IMAGE_FILES = []
+IMAGE_FILES = glob.glob("./selfie_pic/*")
 BG_COLOR = (192, 192, 192) # gray
 MASK_COLOR = (255, 255, 255) # white
-with mp_selfie_segmentation.SelfieSegmentation(
-    model_selection=0) as selfie_segmentation:
+with mp_selfie_segmentation.SelfieSegmentation(model_selection=0) as selfie_segmentation:
     for idx, file in enumerate(IMAGE_FILES):
         image = cv2.imread(file)
+
         image_height, image_width, _ = image.shape
         # Convert the BGR image to RGB before processing.
         results = selfie_segmentation.process(cv2.cvtColor(image, cv2.COLOR_BGR2RGB))
@@ -32,6 +33,28 @@ with mp_selfie_segmentation.SelfieSegmentation(
         bg_image[:] = BG_COLOR
         output_image = np.where(condition, fg_image, bg_image)
 
+        plt.imshow(output_image)
+
+
+# In[]
+with mp_selfie_segmentation.SelfieSegmentation() as selfie_segmentation:
+  for idx, file in enumerate(IMAGE_FILES):
+    # Convert the BGR image to RGB and process it with MediaPipe Selfie Segmentation.
+    image = cv2.imread(file)
+    results = selfie_segmentation.process(cv2.cvtColor(image, cv2.COLOR_BGR2RGB))
+
+    # bg_image = np.zeros(image.shape, dtype=np.uint8)
+    # bg_image[:] = BG_COLOR
+
+    blurred_image = cv2.GaussianBlur(image, (55,55),0)
+    condition = np.stack((results.segmentation_mask,) * 3, axis=-1) > 0.1
+    output_image = np.where(condition, image, blurred_image)
+
+    output_image = cv2.cvtColor(output_image, cv2.COLOR_BGR2RGB)
+    plt.imshow(output_image)
+
+    bg_image = np.zeros(image.shape, dtype=np.uint8)
+    bg_image[:] = BG_COLOR
 
 # In[]
 fourcc = cv2.VideoWriter_fourcc(*'DIVX')
@@ -41,10 +64,10 @@ now = datetime.datetime.now()
 vid_file_name = "./selfie_vid/{}_out.mp4".format(now.strftime("%m%d_%H%M%S"))
 vid_file = cv2.VideoWriter(vid_file_name, fourcc, fps, (width, height))
 
-# cap = cv2.VideoCapture(1)
+cap = cv2.VideoCapture(1)
 
 selfie_orgin = "./selfie_vid/0227_195717.mp4"
-cap = cv2.VideoCapture(selfie_orgin)
+# cap = cv2.VideoCapture(selfie_orgin)
 
 with mp_selfie_segmentation.SelfieSegmentation(model_selection=1) as selfie_segmentation:
     bg_image = cv2.imread('./selfie_bg/milky_way.png')
@@ -78,7 +101,7 @@ with mp_selfie_segmentation.SelfieSegmentation(model_selection=1) as selfie_segm
 
         cv2.imshow('MediaPipe Selfie Segmentation', output_image)
 
-        vid_file.write(output_image)
+        # vid_file.write(output_image)
 
         if cv2.waitKey(10) & 0xFF == ord('q'):
             break

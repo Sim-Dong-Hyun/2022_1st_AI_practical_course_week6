@@ -15,7 +15,7 @@ mp_hands = mp.solutions.hands
 
 #웹캠 열기
 cap = cv2.VideoCapture(1)
-cap = cv2.VideoCapture("./hand_pose/0228_031433.mp4")
+# cap = cv2.VideoCapture("./hand_pose/0228_031433.mp4")
 
 fourcc = cv2.VideoWriter_fourcc(*'DIVX')
 width = int(cap.get(3)) ; height = int(cap.get(4))
@@ -100,7 +100,7 @@ with mp_hands.Hands(max_num_hands=2, min_detection_confidence=0.5, min_tracking_
                 cv2.putText(image, "this_action: {}".format(str(this_action)), (20,350), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 0), 4, cv2.LINE_AA)
 
         cv2.imshow('Hand Pose', image)
-        vid_file.write(image)
+        # vid_file.write(image)
         if cv2.waitKey(10) & 0xFF == ord('q'):
             break
 
