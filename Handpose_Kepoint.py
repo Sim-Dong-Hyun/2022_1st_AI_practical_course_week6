@@ -15,6 +15,8 @@ mp_hands = mp.solutions.hands
 
 #웹캠 열기
 cap = cv2.VideoCapture(1)
+
+# for colab or recorded vid
 # cap = cv2.VideoCapture("./hand_pose/0228_031433.mp4")
 
 fourcc = cv2.VideoWriter_fourcc(*'DIVX')
@@ -30,13 +32,13 @@ with mp_hands.Hands(max_num_hands=2, min_detection_confidence=0.5, min_tracking_
     while cap.isOpened(): #웹캠이 열려있으면
         ret, frame = cap.read() #한 프레임씩 읽어오기
         if ret == False :
-            print("Ignoring empty camera frame.")
+            print("Ignoring empty frame")
             break
 
-        image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB) #opencv는 BGR을 사용하지만 mediapipe는 RGB이기 때문에 변경
-        image = cv2.flip(image, 1) #이미지 좌우 반전
-        results = hands.process(image) #mediapipe Hand Pose Estimation 함수
-        image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR) #다시 opencv용 BGR로 변경
+        image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB) # opencv는 BGR을 사용하지만 mediapipe는 RGB이기 때문에 변경
+        image = cv2.flip(image, 1) # 이미지 좌우 반전
+        results = hands.process(image) # mediapipe Hand Pose Estimation 함수
+        image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR) # 다시 opencv용 BGR로 변경
 
         if results.multi_hand_landmarks:
             for hand_landmarks in results.multi_hand_landmarks:
