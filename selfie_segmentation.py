@@ -99,7 +99,7 @@ with mp_selfie_segmentation.SelfieSegmentation(model_selection=1) as selfie_segm
         # Draw selfie segmentation on the background image.
         # To improve segmentation around boundaries, consider applying a joint
         # bilateral filter to "results.segmentation_mask" with "image".
-        condition = np.stack((results.segmentation_mask,) * 3, axis=-1) > 0.1
+        condition = np.stack((results.segmentation_mask,) * 3, axis=-1) > 0.5
 
         output_image = np.where(condition, image, bg_image)
 

@@ -41,7 +41,7 @@ with mp_hands.Hands(max_num_hands=2, min_detection_confidence=0.5, min_tracking_
         image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR) # 다시 opencv용 BGR로 변경
 
         if results.multi_hand_landmarks:
-            for hand_landmarks in results.multi_hand_landmarks:
+            for idx, hand_landmarks in enumerate(results.multi_hand_landmarks):
 
                 #--------------------------1.기본 keypoint 좌표 이해-------------------------------#
                 thumb = hand_landmarks.landmark[4] #엄지손가락 ex)thumb.x,thumb.y,thumb.z로 활용 가능
@@ -98,10 +98,16 @@ with mp_hands.Hands(max_num_hands=2, min_detection_confidence=0.5, min_tracking_
                 elif index_to_middle < 0.15 and middle_to_ring < 0.12 and ring_to_pinky > 0.07 :
                     this_action = "Paper"
 
-                cv2.putText(image, "this_action: {}".format(str(this_action)), (20,350), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 5, cv2.LINE_AA)
-                cv2.putText(image, "this_action: {}".format(str(this_action)), (20,350), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 0), 4, cv2.LINE_AA)
+                if idx == 0:
+                    cv2.putText(image, "this_action{}: {}".format(0, str(this_action)), (20,350), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 5, cv2.LINE_AA)
+                    cv2.putText(image, "this_action{}: {}".format(0, str(this_action)), (20,350), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 0), 4, cv2.LINE_AA)
+
+                else :
+                    cv2.putText(image, "this_action{}: {}".format(1, str(this_action)), (20,380), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 5, cv2.LINE_AA)
+                    cv2.putText(image, "this_action{}: {}".format(1, str(this_action)), (20,380), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 0), 4, cv2.LINE_AA)
 
         cv2.imshow('Hand Pose', image)
+
         # vid_file.write(image)
         if cv2.waitKey(10) & 0xFF == ord('q'):
             break
